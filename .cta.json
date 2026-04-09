@@ -1,0 +1,22 @@
+{
+  "projectName": "pottery-log",
+  "mode": "file-router",
+  "typescript": true,
+  "packageManager": "npm",
+  "includeExamples": true,
+  "tailwind": true,
+  "addOnOptions": {},
+  "envVarValues": {},
+  "git": true,
+  "routerOnly": false,
+  "version": 1,
+  "framework": "react",
+  "chosenAddOns": [
+    "biome",
+    "form",
+    "mcp",
+    "shadcn",
+    "table",
+    "tanstack-query"
+  ]
+}
