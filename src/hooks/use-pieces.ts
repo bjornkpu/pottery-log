@@ -1,15 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '#/lib/supabase'
+import { db } from '#/lib/supabase'
 import type { Piece, PieceWithRelations, PieceStage, PieceImage } from '#/types/database'
 
 export function usePieces(filters?: { tagIds?: string[]; clayTypeId?: string; search?: string }) {
   return useQuery({
     queryKey: ['pieces', filters],
     queryFn: async () => {
-      let query = supabase
+      let query = db
         .from('pieces')
         .select('*')
-        .schema('pottery')
         .order('created_at', { ascending: false })
 
       if (filters?.clayTypeId) {
@@ -23,10 +22,9 @@ export function usePieces(filters?: { tagIds?: string[]; clayTypeId?: string; se
       if (error) throw error
 
       if (filters?.tagIds?.length && data) {
-        const { data: pieceTags } = await supabase
+        const { data: pieceTags } = await db
           .from('piece_tags')
           .select('piece_id, tag_id')
-          .schema('pottery')
           .in('tag_id', filters.tagIds)
 
         const pieceIdsWithTags = new Set(pieceTags?.map((pt) => pt.piece_id))
@@ -43,10 +41,10 @@ export function usePiece(id: string) {
     queryKey: ['piece', id],
     queryFn: async (): Promise<PieceWithRelations> => {
       const [pieceRes, stagesRes, imagesRes, tagsRes] = await Promise.all([
-        supabase.from('pieces').select('*, clay_type:clay_types(*)').schema('pottery').eq('id', id).single(),
-        supabase.from('piece_stages').select('*').schema('pottery').eq('piece_id', id).order('sort_order'),
-        supabase.from('piece_images').select('*').schema('pottery').eq('piece_id', id).order('sort_order'),
-        supabase.from('piece_tags').select('tag_id, tags(*, category:tag_categories(*))').schema('pottery').eq('piece_id', id),
+        db.from('pieces').select('*, clay_type:clay_types(*)').eq('id', id).single(),
+        db.from('piece_stages').select('*').eq('piece_id', id).order('sort_order'),
+        db.from('piece_images').select('*').eq('piece_id', id).order('sort_order'),
+        db.from('piece_tags').select('tag_id, tags(*, category:tag_categories(*))').eq('piece_id', id),
       ])
 
       if (pieceRes.error) throw pieceRes.error
@@ -81,36 +79,32 @@ export function useCreatePiece() {
     mutationFn: async (input: CreatePieceInput) => {
       const { stages, tag_ids, images, ...pieceData } = input
 
-      const { data: piece, error } = await supabase
+      const { data: piece, error } = await db
         .from('pieces')
         .insert(pieceData)
-        .schema('pottery')
         .select()
         .single()
 
       if (error) throw error
 
       if (stages.length > 0) {
-        const { error: stagesError } = await supabase
+        const { error: stagesError } = await db
           .from('piece_stages')
           .insert(stages.map((s) => ({ ...s, piece_id: piece.id })))
-          .schema('pottery')
         if (stagesError) throw stagesError
       }
 
       if (tag_ids.length > 0) {
-        const { error: tagsError } = await supabase
+        const { error: tagsError } = await db
           .from('piece_tags')
           .insert(tag_ids.map((tag_id) => ({ piece_id: piece.id, tag_id })))
-          .schema('pottery')
         if (tagsError) throw tagsError
       }
 
       if (images.length > 0) {
-        const { error: imagesError } = await supabase
+        const { error: imagesError } = await db
           .from('piece_images')
           .insert(images.map((img) => ({ ...img, piece_id: piece.id })))
-          .schema('pottery')
         if (imagesError) throw imagesError
       }
 
@@ -129,36 +123,32 @@ export function useUpdatePiece() {
     mutationFn: async ({ id, ...input }: CreatePieceInput & { id: string }) => {
       const { stages, tag_ids, images, ...pieceData } = input
 
-      const { error } = await supabase
+      const { error } = await db
         .from('pieces')
         .update(pieceData)
-        .schema('pottery')
         .eq('id', id)
 
       if (error) throw error
 
-      await supabase.from('piece_stages').delete().schema('pottery').eq('piece_id', id)
+      await db.from('piece_stages').delete().eq('piece_id', id)
       if (stages.length > 0) {
-        await supabase
+        await db
           .from('piece_stages')
           .insert(stages.map((s) => ({ ...s, piece_id: id })))
-          .schema('pottery')
       }
 
-      await supabase.from('piece_tags').delete().schema('pottery').eq('piece_id', id)
+      await db.from('piece_tags').delete().eq('piece_id', id)
       if (tag_ids.length > 0) {
-        await supabase
+        await db
           .from('piece_tags')
           .insert(tag_ids.map((tag_id) => ({ piece_id: id, tag_id })))
-          .schema('pottery')
       }
 
-      await supabase.from('piece_images').delete().schema('pottery').eq('piece_id', id)
+      await db.from('piece_images').delete().eq('piece_id', id)
       if (images.length > 0) {
-        await supabase
+        await db
           .from('piece_images')
           .insert(images.map((img) => ({ ...img, piece_id: id })))
-          .schema('pottery')
       }
 
       return { id }
@@ -175,7 +165,7 @@ export function useDeletePiece() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('pieces').delete().schema('pottery').eq('id', id)
+      const { error } = await db.from('pieces').delete().eq('id', id)
       if (error) throw error
     },
     onSuccess: () => {

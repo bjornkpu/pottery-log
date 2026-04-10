@@ -1,15 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '#/lib/supabase'
+import { db } from '#/lib/supabase'
 import type { Tag, TagCategory } from '#/types/database'
 
 export function useTagCategories() {
   return useQuery({
     queryKey: ['tag-categories'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('tag_categories')
         .select('*')
-        .schema('pottery')
         .order('name')
       if (error) throw error
       return data as TagCategory[]
@@ -21,10 +20,9 @@ export function useTags(categoryId?: string) {
   return useQuery({
     queryKey: ['tags', categoryId],
     queryFn: async () => {
-      let query = supabase
+      let query = db
         .from('tags')
         .select('*, category:tag_categories(*)')
-        .schema('pottery')
         .order('name')
 
       if (categoryId) {
@@ -43,10 +41,9 @@ export function useCreateTag() {
 
   return useMutation({
     mutationFn: async (input: { name: string; category_id: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('tags')
         .insert(input)
-        .schema('pottery')
         .select()
         .single()
       if (error) throw error
@@ -63,7 +60,7 @@ export function useDeleteTag() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('tags').delete().schema('pottery').eq('id', id)
+      const { error } = await db.from('tags').delete().eq('id', id)
       if (error) throw error
     },
     onSuccess: () => {
@@ -77,10 +74,9 @@ export function useCreateTagCategory() {
 
   return useMutation({
     mutationFn: async (input: { name: string; is_freeform: boolean }) => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('tag_categories')
         .insert(input)
-        .schema('pottery')
         .select()
         .single()
       if (error) throw error
@@ -97,7 +93,7 @@ export function useDeleteTagCategory() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('tag_categories').delete().schema('pottery').eq('id', id)
+      const { error } = await db.from('tag_categories').delete().eq('id', id)
       if (error) throw error
     },
     onSuccess: () => {
