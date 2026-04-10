@@ -8,6 +8,7 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 import { useState } from 'react'
 import Footer from '../components/Footer'
 import Header from '../components/Header'
+import { OfflineBanner } from '../components/OfflineBanner'
 import { useAuth } from '../hooks/use-auth'
 
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
@@ -104,6 +105,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <OfflineBanner />
       <Header />
       {children}
       <Footer />
