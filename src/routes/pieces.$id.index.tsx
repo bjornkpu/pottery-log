@@ -8,6 +8,7 @@ import { Separator } from '#/components/ui/separator'
 import { ArrowLeft, Pencil, Trash2 } from 'lucide-react'
 import { getSignedImageUrl } from '#/lib/image-utils'
 import { useEffect, useState } from 'react'
+import { useOnlineStatus } from '#/hooks/use-online-status'
 
 export const Route = createFileRoute('/pieces/$id/')({
   component: PieceDetailPage,
@@ -18,6 +19,7 @@ function PieceDetailPage() {
   const { data: piece, isLoading } = usePiece(id)
   const deletePiece = useDeletePiece()
   const router = useRouter()
+  const isOnline = useOnlineStatus()
 
   if (isLoading) {
     return (
@@ -51,11 +53,11 @@ function PieceDetailPage() {
         </Link>
         <h1 className="flex-1 text-2xl font-bold text-[var(--sea-ink)]">{piece.title}</h1>
         <Link to="/pieces/$id/edit" params={{ id }}>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" disabled={!isOnline} title={!isOnline ? 'Krever internett' : undefined}>
             <Pencil className="mr-1 h-4 w-4" /> Rediger
           </Button>
         </Link>
-        <Button variant="outline" size="sm" onClick={handleDelete}>
+        <Button variant="outline" size="sm" onClick={handleDelete} disabled={!isOnline} title={!isOnline ? 'Krever internett' : undefined}>
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>

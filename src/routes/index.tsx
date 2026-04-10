@@ -6,11 +6,13 @@ import { FilterBar } from '#/components/FilterBar'
 import { PieceCard } from '#/components/PieceCard'
 import { Button } from '#/components/ui/button'
 import { Skeleton } from '#/components/ui/skeleton'
+import { useOnlineStatus } from '#/hooks/use-online-status'
 import { usePieces } from '#/hooks/use-pieces'
 
 export const Route = createFileRoute('/')({ component: GridOverview })
 
 function GridOverview() {
+  const isOnline = useOnlineStatus()
   const [filters, setFilters] = useState({
     search: '',
     clayTypeId: undefined as string | undefined,
@@ -28,7 +30,7 @@ function GridOverview() {
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-[var(--sea-ink)]">Pottery Log</h1>
         <Link to="/pieces/new">
-          <Button size="sm">
+          <Button size="sm" disabled={!isOnline} title={!isOnline ? 'Krever internett' : undefined}>
             <Plus className="mr-1 h-4 w-4" />
             Ny
           </Button>
@@ -49,7 +51,7 @@ function GridOverview() {
         <div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
           <p className="text-[var(--sea-ink-soft)]">Ingen produkter ennå</p>
           <Link to="/pieces/new" className="mt-2">
-            <Button variant="outline" size="sm">Legg til ditt første produkt</Button>
+            <Button variant="outline" size="sm" disabled={!isOnline}>Legg til ditt første produkt</Button>
           </Link>
         </div>
       ) : (

@@ -7,12 +7,14 @@ import { useClayTypes, useCreateClayType, useDeleteClayType } from '#/hooks/use-
 import { useTags, useTagCategories, useCreateTag, useDeleteTag, useCreateTagCategory, useDeleteTagCategory } from '#/hooks/use-tags'
 import { useStageDefaults, useCreateStageDefault, useDeleteStageDefault } from '#/hooks/use-stage-defaults'
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
+import { useOnlineStatus } from '#/hooks/use-online-status'
 
 export const Route = createFileRoute('/settings')({
   component: SettingsPage,
 })
 
 function SettingsPage() {
+  const isOnline = useOnlineStatus()
   return (
     <main className="page-wrap px-4 pb-8 pt-6">
       <div className="mb-6 flex items-center gap-2">
@@ -23,17 +25,17 @@ function SettingsPage() {
       </div>
 
       <div className="space-y-8">
-        <ClayTypesSection />
+        <ClayTypesSection disabled={!isOnline} />
         <Separator />
-        <TagsSection />
+        <TagsSection disabled={!isOnline} />
         <Separator />
-        <StageDefaultsSection />
+        <StageDefaultsSection disabled={!isOnline} />
       </div>
     </main>
   )
 }
 
-function ClayTypesSection() {
+function ClayTypesSection({ disabled }: { disabled: boolean }) {
   const { data: clayTypes } = useClayTypes()
   const createClayType = useCreateClayType()
   const deleteClayType = useDeleteClayType()
@@ -46,7 +48,7 @@ function ClayTypesSection() {
         {clayTypes?.map((ct) => (
           <div key={ct.id} className="flex items-center justify-between rounded-lg border border-[var(--line)] px-3 py-2">
             <span className="text-sm">{ct.name}</span>
-            <Button variant="ghost" size="sm" onClick={() => deleteClayType.mutate(ct.id)}>
+            <Button variant="ghost" size="sm" onClick={() => deleteClayType.mutate(ct.id)} disabled={disabled}>
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
@@ -58,8 +60,9 @@ function ClayTypesSection() {
           onChange={(e) => setNewName(e.target.value)}
           placeholder="Ny leiretype..."
           className="flex-1"
+          disabled={disabled}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && newName.trim()) {
+            if (e.key === 'Enter' && newName.trim() && !disabled) {
               createClayType.mutate({ name: newName.trim() })
               setNewName('')
             }
@@ -73,6 +76,7 @@ function ClayTypesSection() {
             }
           }}
           size="sm"
+          disabled={disabled}
         >
           <Plus className="mr-1 h-4 w-4" /> Legg til
         </Button>
@@ -81,7 +85,7 @@ function ClayTypesSection() {
   )
 }
 
-function TagsSection() {
+function TagsSection({ disabled }: { disabled: boolean }) {
   const { data: categories } = useTagCategories()
   const { data: tags } = useTags()
   const createTag = useCreateTag()
@@ -103,7 +107,7 @@ function TagsSection() {
               <h3 className="text-sm font-medium text-[var(--sea-ink)]">
                 {cat.name} {cat.is_freeform && <span className="text-xs text-[var(--sea-ink-soft)]">(fritekst)</span>}
               </h3>
-              <Button variant="ghost" size="sm" onClick={() => deleteCategory.mutate(cat.id)}>
+              <Button variant="ghost" size="sm" onClick={() => deleteCategory.mutate(cat.id)} disabled={disabled}>
                 <Trash2 className="h-3 w-3" />
               </Button>
             </div>
@@ -111,7 +115,7 @@ function TagsSection() {
               {catTags.map((tag) => (
                 <span key={tag.id} className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs">
                   {tag.name}
-                  <button type="button" onClick={() => deleteTag.mutate(tag.id)}>
+                  <button type="button" onClick={() => deleteTag.mutate(tag.id)} disabled={disabled}>
                     <Trash2 className="h-3 w-3" />
                   </button>
                 </span>
@@ -123,8 +127,9 @@ function TagsSection() {
                 onChange={(e) => setNewTagNames({ ...newTagNames, [cat.id]: e.target.value })}
                 placeholder="Ny tag..."
                 className="h-8 w-40 text-sm"
+                disabled={disabled}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && newTagNames[cat.id]?.trim()) {
+                  if (e.key === 'Enter' && newTagNames[cat.id]?.trim() && !disabled) {
                     createTag.mutate({ name: newTagNames[cat.id].trim(), category_id: cat.id })
                     setNewTagNames({ ...newTagNames, [cat.id]: '' })
                   }
@@ -139,6 +144,7 @@ function TagsSection() {
                     setNewTagNames({ ...newTagNames, [cat.id]: '' })
                   }
                 }}
+                disabled={disabled}
               >
                 <Plus className="h-3 w-3" />
               </Button>
@@ -154,6 +160,7 @@ function TagsSection() {
           onChange={(e) => setNewCatName(e.target.value)}
           placeholder="Ny kategori..."
           className="flex-1"
+          disabled={disabled}
         />
         <Button
           size="sm"
@@ -163,6 +170,7 @@ function TagsSection() {
               setNewCatName('')
             }
           }}
+          disabled={disabled}
         >
           <Plus className="mr-1 h-4 w-4" /> Kategori
         </Button>
@@ -171,7 +179,7 @@ function TagsSection() {
   )
 }
 
-function StageDefaultsSection() {
+function StageDefaultsSection({ disabled }: { disabled: boolean }) {
   const { data: defaults } = useStageDefaults()
   const createDefault = useCreateStageDefault()
   const deleteDefault = useDeleteStageDefault()
@@ -191,7 +199,7 @@ function StageDefaultsSection() {
               </p>
             </div>
             {!d.is_system && (
-              <Button variant="ghost" size="sm" onClick={() => deleteDefault.mutate(d.id)}>
+              <Button variant="ghost" size="sm" onClick={() => deleteDefault.mutate(d.id)} disabled={disabled}>
                 <Trash2 className="h-4 w-4" />
               </Button>
             )}
@@ -204,6 +212,17 @@ function StageDefaultsSection() {
           onChange={(e) => setNewName(e.target.value)}
           placeholder="Nytt stadium..."
           className="flex-1"
+          disabled={disabled}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && newName.trim() && !disabled) {
+              createDefault.mutate({
+                name: newName.trim(),
+                default_fields: [],
+                sort_order: (defaults?.length ?? 0) + 1,
+              })
+              setNewName('')
+            }
+          }}
         />
         <Button
           size="sm"
@@ -217,6 +236,7 @@ function StageDefaultsSection() {
               setNewName('')
             }
           }}
+          disabled={disabled}
         >
           <Plus className="mr-1 h-4 w-4" /> Legg til
         </Button>
