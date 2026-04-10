@@ -108,6 +108,14 @@ CREATE POLICY "auth_all" ON pottery.piece_stages FOR ALL USING (auth.uid() IS NO
 CREATE POLICY "auth_all" ON pottery.piece_images FOR ALL USING (auth.uid() IS NOT NULL) WITH CHECK (auth.uid() IS NOT NULL);
 CREATE POLICY "auth_all" ON pottery.piece_tags FOR ALL USING (auth.uid() IS NOT NULL) WITH CHECK (auth.uid() IS NOT NULL);
 
+-- Grant API access (required for PostgREST to access pottery schema)
+
+GRANT USAGE ON SCHEMA pottery TO anon, authenticated;
+GRANT ALL ON ALL TABLES IN SCHEMA pottery TO anon, authenticated;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA pottery TO anon, authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA pottery GRANT ALL ON TABLES TO anon, authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA pottery GRANT ALL ON SEQUENCES TO anon, authenticated;
+
 -- Storage bucket
 
 INSERT INTO storage.buckets (id, name, public)
