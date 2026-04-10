@@ -9,7 +9,7 @@ export default function Header() {
   const { signOut } = useAuth()
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--header-bg)] px-4 backdrop-blur-lg">
+    <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--header-bg)] px-4 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] backdrop-blur-lg">
       <nav className="page-wrap flex items-center gap-3 py-3 sm:py-4">
         <h2 className="m-0 flex-shrink-0 text-base font-semibold tracking-tight">
           <Link
@@ -24,7 +24,7 @@ export default function Header() {
         <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
           <Link
             to="/settings"
-            className="rounded-xl p-2 text-[var(--sea-ink-soft)] transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)]"
+            className="flex h-11 w-11 items-center justify-center rounded-xl text-[var(--sea-ink-soft)] transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)]"
           >
             <Settings className="h-5 w-5" />
           </Link>
@@ -32,7 +32,7 @@ export default function Header() {
           <button
             type="button"
             onClick={() => signOut()}
-            className="rounded-xl p-2 text-[var(--sea-ink-soft)] transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)]"
+            className="flex h-11 w-11 items-center justify-center rounded-xl text-[var(--sea-ink-soft)] transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)]"
           >
             <LogOut className="h-5 w-5" />
           </button>
