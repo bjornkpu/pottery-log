@@ -11,7 +11,9 @@ const config = defineConfig({
 	plugins: [
 		devtools(),
 		vitePluginVersionMark({
-			ifGitSHA: true,
+			command: process.env.GIT_SHA
+				? `echo ${process.env.GIT_SHA}`
+				: "git rev-parse HEAD",
 			ifGlobal: true,
 			ifMeta: true,
 			ifLog: false,

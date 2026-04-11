@@ -4,6 +4,8 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
+ARG GIT_SHA
+ENV GIT_SHA=$GIT_SHA
 RUN npm run build
 
 # ---- Runtime ----
