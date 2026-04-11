@@ -1,213 +1,127 @@
-Welcome to your new TanStack Start app! 
+# Pottery Log
 
-# Getting Started
+A ceramic recipe and logging app for documenting pottery pieces with images, tags, and structured data. Built as a static SPA with a Supabase backend.
 
-To run this application:
+## Tech Stack
+
+- React 19, TypeScript, Vite
+- TanStack Router, Query, Form, Table
+- Tailwind CSS, Shadcn/ui
+- Supabase (auth, database, storage)
+- PWA with offline support
+
+## Development
 
 ```bash
 npm install
 npm run dev
 ```
 
-# Building For Production
+Requires a `.env` file with:
 
-To build this application for production:
-
-```bash
-npm run build
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-## Testing
+## Scripts
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start dev server on port 3000 |
+| `npm run build` | Production build |
+| `npm run preview` | Preview production build |
+| `npm run test` | Run tests (Vitest) |
+| `npm run lint` | Lint (Biome) |
+| `npm run format` | Format (Biome) |
 
-```bash
-npm run test
+## Self-Hosting
+
+Pre-built Docker images are published to `ghcr.io/bjornkpu/pottery-log`. You provide your own Supabase backend.
+
+### Quick Start
+
+```yaml
+# docker-compose.yml
+services:
+  pottery-log:
+    image: ghcr.io/bjornkpu/pottery-log:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - SUPABASE_URL=https://your-project.supabase.co
+      - SUPABASE_ANON_KEY=your-anon-key-here
+    restart: unless-stopped
 ```
 
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-### Removing Tailwind CSS
-
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Uninstall the packages: `npm install @tailwindcss/vite tailwindcss -D`
-
-## Linting & Formatting
-
-This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
-
-
-```bash
-npm run lint
-npm run format
-npm run check
+```sh
+docker compose up -d
 ```
 
+Open `http://localhost:3000`.
 
-## Shadcn
+### Configuration
 
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `SUPABASE_URL` | Yes | Your Supabase project URL |
+| `SUPABASE_ANON_KEY` | Yes | Your Supabase anonymous/public API key |
 
-```bash
-pnpm dlx shadcn@latest add button
-```
+Injected at container startup — no rebuild needed. Restart the container after changes.
 
+### Reverse Proxy
 
+The container serves plain HTTP on port 3000. In production, put a reverse proxy in front with TLS.
 
-## Routing
+**HTTPS is required** for PWA features (offline support, install prompt). Browsers exempt `localhost` but not remote hosts.
 
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
+Caddy example:
 
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
+```caddyfile
+pottery.example.com {
+    reverse_proxy pottery-log:3000
 }
 ```
 
-## API Routes
+Nginx example:
 
-You can create API routes by using the `server` property in your route definitions:
+```nginx
+server {
+    listen 443 ssl;
+    server_name pottery.example.com;
 
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
+    ssl_certificate /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
 
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
+    location / {
+        proxy_pass http://pottery-log:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
 }
 ```
 
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
+### Health Check
 
-# Demo files
+`GET /health` returns `200 OK`. Built-in Docker healthcheck polls every 30s.
 
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
+### Updating
 
-# Learn More
+```sh
+docker compose pull
+docker compose up -d
+```
 
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+### Building from Source
 
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+```sh
+git clone https://github.com/bjornkpu/pottery-log.git
+cd pottery-log
+docker build -t pottery-log .
+docker run -p 3000:3000 \
+  -e SUPABASE_URL=https://your-project.supabase.co \
+  -e SUPABASE_ANON_KEY=your-anon-key \
+  pottery-log
+```
