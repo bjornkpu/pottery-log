@@ -1,3 +1,7 @@
+const commitSha: string | undefined = (
+	window as unknown as Record<string, unknown>
+).__POTTERY_LOG_VERSION__ as string | undefined;
+
 export default function Footer() {
 	const year = new Date().getFullYear();
 
@@ -6,6 +10,19 @@ export default function Footer() {
 			<div className="page-wrap flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
 				<p className="m-0 text-sm">
 					&copy; {year} Furuvik. All rights reserved.
+					{commitSha && (
+						<>
+							{" · "}
+							<a
+								href={`https://github.com/bjornkpu/pottery-log/commit/${commitSha}`}
+								target="_blank"
+								rel="noreferrer"
+								className="text-[var(--sea-ink-soft)] hover:text-[var(--sea-ink)]"
+							>
+								{commitSha.slice(0, 7)}
+							</a>
+						</>
+					)}
 				</p>
 				{/* <p className="island-kicker m-0">Built with TanStack Start</p> */}
 			</div>

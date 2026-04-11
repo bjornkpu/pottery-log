@@ -4,11 +4,18 @@ import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+import { vitePluginVersionMark } from "vite-plugin-version-mark";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 const config = defineConfig({
 	plugins: [
 		devtools(),
+		vitePluginVersionMark({
+			ifGitSHA: true,
+			ifGlobal: true,
+			ifMeta: true,
+			ifLog: false,
+		}),
 		tsconfigPaths({ projects: ["./tsconfig.json"] }),
 		tailwindcss(),
 		tanstackRouter(),
