@@ -1,13 +1,18 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
-import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
+import {
+	createRootRouteWithContext,
+	Outlet,
+	useRouter,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { IssueReporterDialog } from "../components/IssueReporterDialog";
 import { OfflineBanner } from "../components/OfflineBanner";
 import { useAuth } from "../hooks/use-auth";
+import { usePwaUpdate } from "../hooks/use-pwa-update";
 import { IssueReporterProvider } from "../hooks/use-issue-reporter";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
@@ -20,6 +25,33 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootLayout() {
+	const router = useRouter();
+	const { needRefresh, applyUpdate } = usePwaUpdate();
+
+	// Apply pending SW update on route change
+	useEffect(() => {
+		if (!needRefresh) return;
+		return router.subscribe("onResolved", () => {
+			applyUpdate();
+		});
+	}, [router, needRefresh, applyUpdate]);
+
+	// Apply pending SW update when app returns to foreground
+	useEffect(() => {
+		if (!needRefresh) return;
+
+		function handleVisibilityChange() {
+			if (document.visibilityState === "visible") {
+				applyUpdate();
+			}
+		}
+
+		document.addEventListener("visibilitychange", handleVisibilityChange);
+		return () => {
+			document.removeEventListener("visibilitychange", handleVisibilityChange);
+		};
+	}, [needRefresh, applyUpdate]);
+
 	return (
 		<AuthGate>
 			<Outlet />
