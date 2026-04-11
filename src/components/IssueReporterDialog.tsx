@@ -1,4 +1,4 @@
-import { Bug, Camera, Lightbulb, Sparkles } from "lucide-react";
+import { Bug, Camera, Info, Lightbulb, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Dialog, DialogContent } from "#/components/ui/dialog";
@@ -6,6 +6,10 @@ import { Input } from "#/components/ui/input";
 import { Textarea } from "#/components/ui/textarea";
 import { useIssueReporter } from "#/hooks/use-issue-reporter";
 import { buildIssueUrl } from "#/lib/issue-url";
+
+const isTouchDevice =
+	typeof window !== "undefined" &&
+	window.matchMedia("(pointer: coarse)").matches;
 
 type IssueType = "bug" | "enhancement";
 
@@ -109,6 +113,15 @@ export function IssueReporterDialog() {
 						</button>
 					))}
 				</div>
+
+				{/* Mobile label hint */}
+				{isTouchDevice && (
+					<div className="flex items-start gap-2 rounded-lg border border-[var(--lagoon)]/20 bg-[var(--lagoon)]/5 px-3 py-2 text-xs text-[var(--lagoon)]">
+						<Info className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+						GitHub-appen støtter ikke labels fra lenker — husk å sette label
+						manuelt
+					</div>
+				)}
 
 				{/* Title */}
 				<Input
