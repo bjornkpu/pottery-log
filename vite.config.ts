@@ -23,8 +23,8 @@ const config = defineConfig({
 		tanstackRouter(),
 		viteReact(),
 		VitePWA({
-			registerType: "autoUpdate",
-			injectRegister: "script",
+			registerType: "prompt",
+			injectRegister: false,
 			manifest: false,
 			devOptions: {
 				enabled: false,
