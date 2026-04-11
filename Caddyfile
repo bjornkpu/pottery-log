@@ -1,0 +1,30 @@
+:3000 {
+	root * /srv
+
+	# Health check endpoint
+	handle /health {
+		respond "OK" 200
+	}
+
+	# Runtime config — never cache (changes per deployment)
+	@config path /config.js
+	header @config Cache-Control "no-cache, no-store, must-revalidate"
+
+	# SPA entry — never cache (references hashed assets)
+	@html path /index.html /
+	header @html Cache-Control "no-cache, no-store, must-revalidate"
+
+	# Service worker files — never cache aggressively
+	@sw path /sw.js /registerSW.js /workbox-*.js
+	header @sw Cache-Control "no-cache, no-store, must-revalidate"
+
+	# Hashed assets — immutable (Vite content-hashes filenames)
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+
+	encode zstd gzip
+
+	# SPA fallback: serve file if exists, otherwise index.html
+	try_files {path} /index.html
+	file_server
+}

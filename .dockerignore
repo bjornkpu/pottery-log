@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.github
+.env
+.env.*
+.DS_Store
+.tanstack
+.superpowers
+docs
+*.local
+todos.json
+mcp-todos.json

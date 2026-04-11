@@ -22,6 +22,7 @@ const config = defineConfig({
 			},
 			workbox: {
 				globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+				globIgnores: ["config.js"],
 				navigateFallback: "/index.html",
 				runtimeCaching: [
 					{
