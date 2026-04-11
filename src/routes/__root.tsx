@@ -5,8 +5,10 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { useState } from "react";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import { IssueReporterDialog } from "../components/IssueReporterDialog";
 import { OfflineBanner } from "../components/OfflineBanner";
 import { useAuth } from "../hooks/use-auth";
+import { IssueReporterProvider } from "../hooks/use-issue-reporter";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
 interface MyRouterContext {
@@ -100,11 +102,12 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 	}
 
 	return (
-		<>
+		<IssueReporterProvider>
 			<OfflineBanner />
 			<Header />
 			{children}
 			<Footer />
+			<IssueReporterDialog />
 			<TanStackDevtools
 				config={{ position: "bottom-right" }}
 				plugins={[
@@ -112,6 +115,6 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 					TanStackQueryDevtools,
 				]}
 			/>
-		</>
+		</IssueReporterProvider>
 	);
 }

@@ -1,43 +1,25 @@
-import { Link } from '@tanstack/react-router'
-import { LogOut, Settings } from 'lucide-react'
-
-import { useAuth } from '#/hooks/use-auth'
-
-import ThemeToggle from './ThemeToggle'
+import { Link } from "@tanstack/react-router";
+import { Settings } from "lucide-react";
 
 export default function Header() {
-  const { signOut } = useAuth()
+	return (
+		<header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--header-bg)] px-4 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] backdrop-blur-lg">
+			<nav className="page-wrap flex items-center gap-3 py-3 sm:py-4">
+				<h1 className="m-0 flex-shrink-0 text-lg font-bold tracking-tight text-[var(--sea-ink)]">
+					<Link to="/" className="no-underline text-[var(--sea-ink)]">
+						Pottery Log
+					</Link>
+				</h1>
 
-  return (
-    <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--header-bg)] px-4 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] backdrop-blur-lg">
-      <nav className="page-wrap flex items-center gap-3 py-3 sm:py-4">
-        <h2 className="m-0 flex-shrink-0 text-base font-semibold tracking-tight">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 rounded-full border border-[var(--chip-line)] bg-[var(--chip-bg)] px-3 py-1.5 text-sm text-[var(--sea-ink)] no-underline shadow-[0_8px_24px_rgba(30,90,72,0.08)] sm:px-4 sm:py-2"
-          >
-            <span className="h-2 w-2 rounded-full bg-[linear-gradient(90deg,#56c6be,#7ed3bf)]" />
-            Pottery Log
-          </Link>
-        </h2>
-
-        <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
-          <Link
-            to="/settings"
-            className="flex h-11 w-11 items-center justify-center rounded-xl text-[var(--sea-ink-soft)] transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)]"
-          >
-            <Settings className="h-5 w-5" />
-          </Link>
-          <ThemeToggle />
-          <button
-            type="button"
-            onClick={() => signOut()}
-            className="flex h-11 w-11 items-center justify-center rounded-xl text-[var(--sea-ink-soft)] transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)]"
-          >
-            <LogOut className="h-5 w-5" />
-          </button>
-        </div>
-      </nav>
-    </header>
-  )
+				<div className="ml-auto">
+					<Link
+						to="/settings"
+						className="flex h-11 w-11 items-center justify-center rounded-xl text-[var(--sea-ink-soft)] transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)]"
+					>
+						<Settings className="h-5 w-5" />
+					</Link>
+				</div>
+			</nav>
+		</header>
+	);
 }
