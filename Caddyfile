@@ -9,14 +9,23 @@
 		respond "OK" 200
 	}
 
+	# Runtime config, read from the container environment when Caddy loads
+	# this file. {$VAR} expands at load time, so an unset variable becomes an
+	# empty string and the app reports a clear error; {env.VAR} would leave
+	# the placeholder text itself in the response.
+	handle /config.js {
+		header Content-Type "application/javascript"
+		header Cache-Control "no-store"
+		respond `window.__CONFIG__ = { SUPABASE_URL: "{$SUPABASE_URL}", SUPABASE_ANON_KEY: "{$SUPABASE_ANON_KEY}" };` 200
+	}
+
 	handle {
 		# Hashed assets — immutable (Vite content-hashes filenames)
 		@immutable path /assets/*
 		header @immutable Cache-Control "public, max-age=31536000, immutable"
 
 		# Everything else must stay fresh: index.html and deep links reference
-		# hashed assets, config.js changes per deployment, and the service
-		# worker decides when updates apply
+		# hashed assets, and the service worker decides when updates apply
 		@volatile not path /assets/*
 		header @volatile Cache-Control "no-store"
 
