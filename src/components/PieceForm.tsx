@@ -18,7 +18,12 @@ import { Textarea } from "#/components/ui/textarea";
 import { useAuth } from "#/hooks/use-auth";
 import { useClayTypes } from "#/hooks/use-clay-types";
 import { useStageDefaults } from "#/hooks/use-stage-defaults";
-import { getSignedImageUrl, uploadImage } from "#/lib/image-utils";
+import {
+	deleteImages,
+	getSignedImageUrl,
+	orphanedPaths,
+	uploadImage,
+} from "#/lib/image-utils";
 import type { PieceWithRelations } from "#/types/database";
 
 type PieceFormProps = {
@@ -216,6 +221,22 @@ export function PieceForm({
 				tag_ids: tagIds,
 				images: processedImages,
 			});
+
+			// Only after the save commits: an aborted save must never delete a live image.
+			const initialPaths = [
+				...(initialData?.stages.map((s) => s.image_path) ?? []),
+				...(initialData?.images.map((img) => img.image_path) ?? []),
+			].filter((path): path is string => Boolean(path));
+			const submittedPaths = [
+				...processedStages.map((s) => s.image_path),
+				...processedImages.map((img) => img.image_path),
+				displayImage,
+			].filter((path): path is string => Boolean(path));
+
+			// A failed cleanup leaves an orphan, which beats failing a save that worked.
+			await deleteImages(orphanedPaths(initialPaths, submittedPaths)).catch(
+				() => {},
+			);
 		} finally {
 			setSubmitting(false);
 		}
