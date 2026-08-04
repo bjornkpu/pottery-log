@@ -18,6 +18,12 @@ export type Tag = {
 	category?: TagCategory;
 };
 
+export type Folder = {
+	id: string;
+	name: string;
+	sort_order: number;
+};
+
 export type StageDefault = {
 	id: string;
 	name: string;
@@ -64,5 +70,6 @@ export type PieceWithRelations = Piece & {
 	clay_type: ClayType | null;
 	stages: PieceStage[];
 	tags: Tag[];
+	folders: Folder[];
 	images: PieceImage[];
 };

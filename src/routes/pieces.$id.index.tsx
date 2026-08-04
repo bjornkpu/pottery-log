@@ -66,6 +66,11 @@ function PieceDetailPage() {
 
 			{/* Metadata */}
 			<div className="mb-4 flex flex-wrap items-center gap-2 text-sm">
+				{piece.folders.map((folder) => (
+					<Badge key={folder.id} variant="outline">
+						{folder.name}
+					</Badge>
+				))}
 				{piece.tags.map((tag) => (
 					<Badge key={tag.id} variant="secondary">
 						{tag.name}

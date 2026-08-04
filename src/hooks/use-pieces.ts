@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { filterByRelation } from "#/lib/piece-filters";
 import { db } from "#/lib/supabase";
 import type {
+	Folder,
 	Piece,
 	PieceImage,
 	PieceStage,
@@ -12,6 +14,7 @@ export function usePieces(filters?: {
 	tagIds?: string[];
 	clayTypeId?: string;
 	search?: string;
+	folderId?: string;
 }) {
 	return useQuery({
 		queryKey: ["pieces", filters],
@@ -31,17 +34,27 @@ export function usePieces(filters?: {
 			const { data, error } = await query;
 			if (error) throw error;
 
-			if (filters?.tagIds?.length && data) {
+			let result = data as Piece[];
+
+			if (filters?.tagIds?.length) {
 				const { data: pieceTags } = await db
 					.from("piece_tags")
-					.select("piece_id, tag_id")
+					.select("piece_id")
 					.in("tag_id", filters.tagIds);
 
-				const pieceIdsWithTags = new Set(pieceTags?.map((pt) => pt.piece_id));
-				return data.filter((p) => pieceIdsWithTags.has(p.id)) as Piece[];
+				result = filterByRelation(result, pieceTags ?? []);
 			}
 
-			return data as Piece[];
+			if (filters?.folderId) {
+				const { data: pieceFolders } = await db
+					.from("piece_folders")
+					.select("piece_id")
+					.eq("folder_id", filters.folderId);
+
+				result = filterByRelation(result, pieceFolders ?? []);
+			}
+
+			return result;
 		},
 	});
 }
@@ -50,27 +63,32 @@ export function usePiece(id: string) {
 	return useQuery({
 		queryKey: ["piece", id],
 		queryFn: async (): Promise<PieceWithRelations> => {
-			const [pieceRes, stagesRes, imagesRes, tagsRes] = await Promise.all([
-				db
-					.from("pieces")
-					.select("*, clay_type:clay_types(*)")
-					.eq("id", id)
-					.single(),
-				db
-					.from("piece_stages")
-					.select("*")
-					.eq("piece_id", id)
-					.order("sort_order"),
-				db
-					.from("piece_images")
-					.select("*")
-					.eq("piece_id", id)
-					.order("sort_order"),
-				db
-					.from("piece_tags")
-					.select("tag_id, tags(*, category:tag_categories(*))")
-					.eq("piece_id", id),
-			]);
+			const [pieceRes, stagesRes, imagesRes, tagsRes, foldersRes] =
+				await Promise.all([
+					db
+						.from("pieces")
+						.select("*, clay_type:clay_types(*)")
+						.eq("id", id)
+						.single(),
+					db
+						.from("piece_stages")
+						.select("*")
+						.eq("piece_id", id)
+						.order("sort_order"),
+					db
+						.from("piece_images")
+						.select("*")
+						.eq("piece_id", id)
+						.order("sort_order"),
+					db
+						.from("piece_tags")
+						.select("tag_id, tags(*, category:tag_categories(*))")
+						.eq("piece_id", id),
+					db
+						.from("piece_folders")
+						.select("folder_id, folders(*)")
+						.eq("piece_id", id),
+				]);
 
 			if (pieceRes.error) throw pieceRes.error;
 
@@ -83,6 +101,11 @@ export function usePiece(id: string) {
 				tags: ((tagsRes.data ?? []) as unknown as { tags: Tag }[]).map(
 					(pt) => pt.tags,
 				),
+				// The client is untyped, so Supabase infers the embedded folder as an
+				// array; the folder_id FK makes it a single row at runtime
+				folders: (
+					(foldersRes.data ?? []) as unknown as { folders: Folder }[]
+				).map((pf) => pf.folders),
 			};
 		},
 		enabled: !!id,
@@ -98,6 +121,7 @@ type CreatePieceInput = {
 	display_image?: string | null;
 	stages: Omit<PieceStage, "id" | "piece_id" | "created_at">[];
 	tag_ids: string[];
+	folder_ids: string[];
 	images: { image_path: string; caption: string | null; sort_order: number }[];
 };
 
@@ -106,7 +130,7 @@ export function useCreatePiece() {
 
 	return useMutation({
 		mutationFn: async (input: CreatePieceInput) => {
-			const { stages, tag_ids, images, ...pieceData } = input;
+			const { stages, tag_ids, folder_ids, images, ...pieceData } = input;
 
 			const { data: piece, error } = await db
 				.from("pieces")
@@ -130,6 +154,16 @@ export function useCreatePiece() {
 				if (tagsError) throw tagsError;
 			}
 
+			if (folder_ids.length > 0) {
+				const { error: foldersError } = await db.from("piece_folders").insert(
+					folder_ids.map((folder_id) => ({
+						piece_id: piece.id,
+						folder_id,
+					})),
+				);
+				if (foldersError) throw foldersError;
+			}
+
 			if (images.length > 0) {
 				const { error: imagesError } = await db
 					.from("piece_images")
@@ -150,7 +184,7 @@ export function useUpdatePiece() {
 
 	return useMutation({
 		mutationFn: async ({ id, ...input }: CreatePieceInput & { id: string }) => {
-			const { stages, tag_ids, images, ...pieceData } = input;
+			const { stages, tag_ids, folder_ids, images, ...pieceData } = input;
 
 			const { error } = await db.from("pieces").update(pieceData).eq("id", id);
 
@@ -168,6 +202,13 @@ export function useUpdatePiece() {
 				await db
 					.from("piece_tags")
 					.insert(tag_ids.map((tag_id) => ({ piece_id: id, tag_id })));
+			}
+
+			await db.from("piece_folders").delete().eq("piece_id", id);
+			if (folder_ids.length > 0) {
+				await db
+					.from("piece_folders")
+					.insert(folder_ids.map((folder_id) => ({ piece_id: id, folder_id })));
 			}
 
 			await db.from("piece_images").delete().eq("piece_id", id);

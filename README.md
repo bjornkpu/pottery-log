@@ -39,6 +39,8 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 
 Pre-built Docker images are published to `ghcr.io/bjornkpu/pottery-log`. You provide your own Supabase backend.
 
+Apply the SQL files in `supabase/migrations/` in filename order: `001_initial_schema.sql`, then `002_folders.sql` (folders). Apply a new migration before deploying the app version that needs it, or its queries will fail against the missing tables.
+
 ### Quick Start
 
 ```yaml
