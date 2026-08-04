@@ -1,5 +1,6 @@
-import { ImagePlus, X } from "lucide-react";
+import { Crop, ImagePlus, X } from "lucide-react";
 import { useRef, useState } from "react";
+import { ImageCropDialog } from "#/components/ImageCropDialog";
 
 type ImageUploadProps = {
 	onChange: (file: File | null) => void;
@@ -9,6 +10,7 @@ type ImageUploadProps = {
 export function ImageUpload({ onChange, previewUrl }: ImageUploadProps) {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [localPreview, setLocalPreview] = useState<string | null>(null);
+	const [cropping, setCropping] = useState(false);
 
 	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const file = e.target.files?.[0] ?? null;
@@ -16,6 +18,11 @@ export function ImageUpload({ onChange, previewUrl }: ImageUploadProps) {
 			onChange(file);
 			setLocalPreview(URL.createObjectURL(file));
 		}
+	}
+
+	function handleCropped(file: File) {
+		onChange(file);
+		setLocalPreview(URL.createObjectURL(file));
 	}
 
 	function handleRemove() {
@@ -42,6 +49,21 @@ export function ImageUpload({ onChange, previewUrl }: ImageUploadProps) {
 					>
 						<X className="h-4 w-4" />
 					</button>
+					{/* Bottom-right so it clears the remove button on a narrow tile */}
+					<button
+						type="button"
+						onClick={() => setCropping(true)}
+						aria-label="Beskjær bilde"
+						className="absolute right-2 bottom-2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70"
+					>
+						<Crop className="h-4 w-4" />
+					</button>
+					<ImageCropDialog
+						src={displayUrl}
+						open={cropping}
+						onOpenChange={setCropping}
+						onCropped={handleCropped}
+					/>
 				</div>
 			) : (
 				<button
