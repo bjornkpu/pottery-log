@@ -30,6 +30,20 @@ export async function uploadImage(
 	return { path: data.path, error: null };
 }
 
+/** Paths the piece referenced before an edit that its submitted state no longer uses. */
+export function orphanedPaths(
+	initial: string[],
+	submitted: string[],
+): string[] {
+	const kept = new Set(submitted);
+	return [...new Set(initial)].filter((path) => !kept.has(path));
+}
+
+export async function deleteImages(paths: string[]): Promise<void> {
+	if (paths.length === 0) return;
+	await supabase.storage.from("pottery-images").remove(paths);
+}
+
 export function getImageUrl(path: string): string {
 	const { data } = supabase.storage.from("pottery-images").getPublicUrl(path);
 	return data.publicUrl;
