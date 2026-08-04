@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
+import { CoverStar } from "#/components/CoverStar";
 import { StageSection } from "#/components/StageSection";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
@@ -124,7 +125,14 @@ function PieceDetailPage() {
 					<h3 className="mb-3 text-lg font-semibold text-[var(--sea-ink)]">
 						Ekstra bilder
 					</h3>
-					<ExtraImagesGallery images={piece.images} />
+					<ExtraImagesGallery
+						images={piece.images}
+						coverPath={piece.display_image}
+						canSetCover={isOnline}
+						onSetCover={(imagePath) =>
+							setDisplayImage.mutate({ id, imagePath })
+						}
+					/>
 				</>
 			)}
 		</main>
@@ -133,8 +141,14 @@ function PieceDetailPage() {
 
 function ExtraImagesGallery({
 	images,
+	coverPath,
+	canSetCover,
+	onSetCover,
 }: {
 	images: { image_path: string; caption: string | null }[];
+	coverPath: string | null;
+	canSetCover: boolean;
+	onSetCover: (path: string) => void;
 }) {
 	const [urls, setUrls] = useState<Record<string, string>>({});
 
@@ -151,11 +165,18 @@ function ExtraImagesGallery({
 			{images.map((img) => (
 				<div key={img.image_path}>
 					{urls[img.image_path] ? (
-						<ZoomableImage
-							src={urls[img.image_path]}
-							alt={img.caption ?? "Ekstra bilde"}
-							className="aspect-square w-full rounded-lg object-cover"
-						/>
+						<div className="relative">
+							<ZoomableImage
+								src={urls[img.image_path]}
+								alt={img.caption ?? "Ekstra bilde"}
+								className="aspect-square w-full rounded-lg object-cover"
+							/>
+							<CoverStar
+								isCover={coverPath === img.image_path}
+								onSetCover={() => onSetCover(img.image_path)}
+								disabled={!canSetCover}
+							/>
+						</div>
 					) : (
 						<div className="aspect-square rounded-lg bg-[var(--sand)]" />
 					)}
