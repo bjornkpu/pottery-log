@@ -24,15 +24,13 @@ export function CoverStar({
 			aria-pressed={isCover}
 			disabled={disabled}
 			title={disabled ? "Krever internett" : undefined}
-			onClick={(event) => {
-				// The photo underneath opens the lightbox on click
-				event.stopPropagation();
+			onClick={() => {
 				onSetCover();
 			}}
-			className="absolute right-1 top-1 rounded-full bg-black/50 p-1.5 text-white disabled:opacity-40"
+			className="absolute right-1 top-1 rounded-full bg-black/50 p-2 text-white disabled:opacity-40"
 		>
 			<Star
-				className={cn("h-4 w-4", isCover && "fill-current")}
+				className={cn("h-5 w-5", isCover && "fill-current")}
 				aria-hidden="true"
 			/>
 		</button>

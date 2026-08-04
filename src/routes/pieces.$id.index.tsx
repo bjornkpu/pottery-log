@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Pencil } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CoverStar } from "#/components/CoverStar";
 import { StageSection } from "#/components/StageSection";
 import { Badge } from "#/components/ui/badge";
@@ -93,9 +93,7 @@ function PieceDetailPage() {
 				<StageSection
 					key={stage.id}
 					stage={stage}
-					isCover={
-						!!stage.image_path && piece.display_image === stage.image_path
-					}
+					isCover={piece.display_image === stage.image_path}
 					canSetCover={isOnline}
 					onSetCover={() => {
 						if (stage.image_path) {
@@ -151,9 +149,12 @@ function ExtraImagesGallery({
 	onSetCover: (path: string) => void;
 }) {
 	const [urls, setUrls] = useState<Record<string, string>>({});
+	const requested = useRef(new Set<string>());
 
 	useEffect(() => {
 		images.forEach((img) => {
+			if (requested.current.has(img.image_path)) return;
+			requested.current.add(img.image_path);
 			getSignedImageUrl(img.image_path).then((url) => {
 				setUrls((prev) => ({ ...prev, [img.image_path]: url }));
 			});
