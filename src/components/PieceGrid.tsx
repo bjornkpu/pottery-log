@@ -93,12 +93,18 @@ export function PieceGrid({ title, folderId }: PieceGridProps) {
 				</div>
 			) : pieces?.length === 0 ? (
 				<div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
-					<p className="text-[var(--sea-ink-soft)]">Ingen produkter ennå</p>
-					<Link to="/pieces/new" className="mt-2">
-						<Button variant="outline" size="sm" disabled={!isOnline}>
-							Legg til ditt første produkt
-						</Button>
-					</Link>
+					<p className="text-[var(--sea-ink-soft)]">
+						{folderId
+							? "Ingen produkter i denne mappen"
+							: "Ingen produkter ennå"}
+					</p>
+					{!folderId && (
+						<Link to="/pieces/new" className="mt-2">
+							<Button variant="outline" size="sm" disabled={!isOnline}>
+								Legg til ditt første produkt
+							</Button>
+						</Link>
+					)}
 				</div>
 			) : (
 				<div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">

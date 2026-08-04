@@ -13,6 +13,8 @@ CREATE TABLE pottery.piece_folders (
 	PRIMARY KEY (piece_id, folder_id)
 );
 
+CREATE INDEX ON pottery.piece_folders (folder_id);
+
 ALTER TABLE pottery.folders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pottery.piece_folders ENABLE ROW LEVEL SECURITY;
 

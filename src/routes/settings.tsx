@@ -187,7 +187,7 @@ function FoldersSection({ disabled }: { disabled: boolean }) {
 		if (!newName.trim()) return;
 		createFolder.mutate({
 			name: newName.trim(),
-			sort_order: (folders?.length ?? 0) + 1,
+			sort_order: Math.max(0, ...(folders ?? []).map((f) => f.sort_order)) + 1,
 		});
 		setNewName("");
 	}

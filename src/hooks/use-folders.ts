@@ -61,6 +61,8 @@ export function useDeleteFolder() {
 			queryClient.invalidateQueries({ queryKey: ["folders"] });
 			// A folder-scoped grid may be on screen
 			queryClient.invalidateQueries({ queryKey: ["pieces"] });
+			// A cached piece-detail page may still show the deleted folder's badge
+			queryClient.invalidateQueries({ queryKey: ["piece"] });
 		},
 	});
 }
