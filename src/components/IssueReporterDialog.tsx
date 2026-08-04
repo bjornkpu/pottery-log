@@ -135,7 +135,6 @@ export function IssueReporterDialog() {
 					value={description}
 					onChange={(e) => setDescription(e.target.value)}
 					placeholder={placeholders[type].desc}
-					rows={4}
 				/>
 
 				{/* Actions */}
