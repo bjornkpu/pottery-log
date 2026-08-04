@@ -186,6 +186,30 @@ export function useUpdatePiece() {
 	});
 }
 
+export function useSetDisplayImage() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async ({
+			id,
+			imagePath,
+		}: {
+			id: string;
+			imagePath: string;
+		}) => {
+			const { error } = await db
+				.from("pieces")
+				.update({ display_image: imagePath })
+				.eq("id", id);
+			if (error) throw error;
+		},
+		onSuccess: (_data, variables) => {
+			queryClient.invalidateQueries({ queryKey: ["pieces"] });
+			queryClient.invalidateQueries({ queryKey: ["piece", variables.id] });
+		},
+	});
+}
+
 export function useDeletePiece() {
 	const queryClient = useQueryClient();
 
