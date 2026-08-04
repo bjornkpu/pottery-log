@@ -1,11 +1,15 @@
 # ---- Build ----
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
 ARG GIT_SHA=unknown
 ENV GIT_SHA=$GIT_SHA
+
+# Format and lint gate: biome ci never writes and fails on warnings, so a
+# violation stops the image here rather than needing a second npm ci in CI
+RUN npm run check:ci
 RUN npm run build
 
 # ---- Runtime ----
