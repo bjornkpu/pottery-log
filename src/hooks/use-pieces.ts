@@ -34,25 +34,27 @@ export function usePieces(filters?: {
 			const { data, error } = await query;
 			if (error) throw error;
 
-			if (filters?.tagIds?.length && data) {
+			let result = data as Piece[];
+
+			if (filters?.tagIds?.length) {
 				const { data: pieceTags } = await db
 					.from("piece_tags")
 					.select("piece_id")
 					.in("tag_id", filters.tagIds);
 
-				return filterByRelation(data as Piece[], pieceTags ?? []);
+				result = filterByRelation(result, pieceTags ?? []);
 			}
 
-			if (filters?.folderId && data) {
+			if (filters?.folderId) {
 				const { data: pieceFolders } = await db
 					.from("piece_folders")
 					.select("piece_id")
 					.eq("folder_id", filters.folderId);
 
-				return filterByRelation(data as Piece[], pieceFolders ?? []);
+				result = filterByRelation(result, pieceFolders ?? []);
 			}
 
-			return data as Piece[];
+			return result;
 		},
 	});
 }
