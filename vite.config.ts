@@ -5,9 +5,9 @@ import viteReact from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { vitePluginVersionMark } from "vite-plugin-version-mark";
-import tsconfigPaths from "vite-tsconfig-paths";
 
 const config = defineConfig({
+	resolve: { tsconfigPaths: true },
 	plugins: [
 		devtools(),
 		vitePluginVersionMark({
@@ -18,7 +18,6 @@ const config = defineConfig({
 			ifMeta: true,
 			ifLog: false,
 		}),
-		tsconfigPaths({ projects: ["./tsconfig.json"] }),
 		tailwindcss(),
 		tanstackRouter(),
 		viteReact(),
