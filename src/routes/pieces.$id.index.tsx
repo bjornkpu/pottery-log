@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Pencil } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { CoverStar } from "#/components/CoverStar";
 import { StageSection } from "#/components/StageSection";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
@@ -8,7 +9,7 @@ import { Separator } from "#/components/ui/separator";
 import { Skeleton } from "#/components/ui/skeleton";
 import { ZoomableImage } from "#/components/ZoomableImage";
 import { useOnlineStatus } from "#/hooks/use-online-status";
-import { usePiece } from "#/hooks/use-pieces";
+import { usePiece, useSetDisplayImage } from "#/hooks/use-pieces";
 import { getSignedImageUrl } from "#/lib/image-utils";
 
 export const Route = createFileRoute("/pieces/$id/")({
@@ -19,6 +20,7 @@ function PieceDetailPage() {
 	const { id } = Route.useParams();
 	const { data: piece, isLoading } = usePiece(id);
 	const isOnline = useOnlineStatus();
+	const setDisplayImage = useSetDisplayImage();
 
 	if (isLoading) {
 		return (
@@ -88,7 +90,17 @@ function PieceDetailPage() {
 
 			{/* Stages */}
 			{piece.stages.map((stage) => (
-				<StageSection key={stage.id} stage={stage} />
+				<StageSection
+					key={stage.id}
+					stage={stage}
+					isCover={piece.display_image === stage.image_path}
+					canSetCover={isOnline}
+					onSetCover={() => {
+						if (stage.image_path) {
+							setDisplayImage.mutate({ id, imagePath: stage.image_path });
+						}
+					}}
+				/>
 			))}
 
 			{/* Slutttanker */}
@@ -111,7 +123,14 @@ function PieceDetailPage() {
 					<h3 className="mb-3 text-lg font-semibold text-[var(--sea-ink)]">
 						Ekstra bilder
 					</h3>
-					<ExtraImagesGallery images={piece.images} />
+					<ExtraImagesGallery
+						images={piece.images}
+						coverPath={piece.display_image}
+						canSetCover={isOnline}
+						onSetCover={(imagePath) =>
+							setDisplayImage.mutate({ id, imagePath })
+						}
+					/>
 				</>
 			)}
 		</main>
@@ -120,13 +139,22 @@ function PieceDetailPage() {
 
 function ExtraImagesGallery({
 	images,
+	coverPath,
+	canSetCover,
+	onSetCover,
 }: {
 	images: { image_path: string; caption: string | null }[];
+	coverPath: string | null;
+	canSetCover: boolean;
+	onSetCover: (path: string) => void;
 }) {
 	const [urls, setUrls] = useState<Record<string, string>>({});
+	const requested = useRef(new Set<string>());
 
 	useEffect(() => {
 		images.forEach((img) => {
+			if (requested.current.has(img.image_path)) return;
+			requested.current.add(img.image_path);
 			getSignedImageUrl(img.image_path).then((url) => {
 				setUrls((prev) => ({ ...prev, [img.image_path]: url }));
 			});
@@ -138,11 +166,18 @@ function ExtraImagesGallery({
 			{images.map((img) => (
 				<div key={img.image_path}>
 					{urls[img.image_path] ? (
-						<ZoomableImage
-							src={urls[img.image_path]}
-							alt={img.caption ?? "Ekstra bilde"}
-							className="aspect-square w-full rounded-lg object-cover"
-						/>
+						<div className="relative">
+							<ZoomableImage
+								src={urls[img.image_path]}
+								alt={img.caption ?? "Ekstra bilde"}
+								className="aspect-square w-full rounded-lg object-cover"
+							/>
+							<CoverStar
+								isCover={coverPath === img.image_path}
+								onSetCover={() => onSetCover(img.image_path)}
+								disabled={!canSetCover}
+							/>
+						</div>
 					) : (
 						<div className="aspect-square rounded-lg bg-[var(--sand)]" />
 					)}

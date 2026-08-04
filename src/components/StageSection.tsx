@@ -1,11 +1,22 @@
 import { useEffect, useState } from "react";
+import { CoverStar } from "#/components/CoverStar";
 import { Separator } from "#/components/ui/separator";
 import { ZoomableImage } from "#/components/ZoomableImage";
 import { getFieldLabel } from "#/lib/field-labels";
 import { getSignedImageUrl } from "#/lib/image-utils";
 import type { PieceStage } from "#/types/database";
 
-export function StageSection({ stage }: { stage: PieceStage }) {
+export function StageSection({
+	stage,
+	isCover,
+	onSetCover,
+	canSetCover,
+}: {
+	stage: PieceStage;
+	isCover: boolean;
+	onSetCover: () => void;
+	canSetCover: boolean;
+}) {
 	const [imageUrl, setImageUrl] = useState<string | null>(null);
 
 	useEffect(() => {
@@ -29,11 +40,18 @@ export function StageSection({ stage }: { stage: PieceStage }) {
 				{stage.image_path && (
 					<div className="w-full flex-shrink-0 sm:w-48">
 						{imageUrl ? (
-							<ZoomableImage
-								src={imageUrl}
-								alt={stage.title}
-								className="w-full rounded-lg object-cover"
-							/>
+							<div className="relative">
+								<ZoomableImage
+									src={imageUrl}
+									alt={stage.title}
+									className="w-full rounded-lg object-cover"
+								/>
+								<CoverStar
+									isCover={isCover}
+									onSetCover={onSetCover}
+									disabled={!canSetCover}
+								/>
+							</div>
 						) : (
 							<div className="aspect-square rounded-lg bg-[var(--sand)]" />
 						)}
