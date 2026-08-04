@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { FolderSelect } from "#/components/FolderSelect";
 import { ImageUpload } from "#/components/ImageUpload";
 import { StageEditor, type StageFormData } from "#/components/StageEditor";
 import { TagSelect } from "#/components/TagSelect";
@@ -40,6 +41,7 @@ type PieceFormProps = {
 			sort_order: number;
 		}[];
 		tag_ids: string[];
+		folder_ids: string[];
 		images: {
 			image_path: string;
 			caption: string | null;
@@ -70,6 +72,9 @@ export function PieceForm({
 	const [finalNotes, setFinalNotes] = useState(initialData?.final_notes ?? "");
 	const [tagIds, setTagIds] = useState<string[]>(
 		initialData?.tags.map((t) => t.id) ?? [],
+	);
+	const [folderIds, setFolderIds] = useState<string[]>(
+		initialData?.folders.map((f) => f.id) ?? [],
 	);
 	const [submitting, setSubmitting] = useState(false);
 
@@ -214,6 +219,7 @@ export function PieceForm({
 				display_image: displayImage,
 				stages: processedStages,
 				tag_ids: tagIds,
+				folder_ids: folderIds,
 				images: processedImages,
 			});
 		} finally {
@@ -279,6 +285,11 @@ export function PieceForm({
 			<div>
 				<Label className="mb-2 block">Tags</Label>
 				<TagSelect selectedIds={tagIds} onChange={setTagIds} />
+			</div>
+
+			<div>
+				<Label className="mb-2 block">Mapper</Label>
+				<FolderSelect selectedIds={folderIds} onChange={setFolderIds} />
 			</div>
 
 			<Separator />
