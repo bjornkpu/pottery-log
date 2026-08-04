@@ -58,6 +58,21 @@ describe("ZoomableImage", () => {
 		expect(full.className).not.toContain("aspect-square");
 	});
 
+	// A closed <dialog> is hidden by the UA rule dialog:not([open]){display:none},
+	// which any author-stylesheet display utility overrides. A bare "flex" here
+	// leaves every dialog on screen permanently, so the display utility must stay
+	// gated behind the open: variant.
+	it("only applies a display utility to the dialog while it is open", () => {
+		render(<ZoomableImage src={SRC} alt="Bolle" />);
+
+		const dialog = screen.getByRole("dialog", { hidden: true });
+		const classes = dialog.className.split(" ");
+
+		expect(classes).toContain("hidden");
+		expect(classes).toContain("open:flex");
+		expect(classes).not.toContain("flex");
+	});
+
 	it("closes the dialog when the dialog element itself is clicked", () => {
 		render(<ZoomableImage src={SRC} alt="Bolle" />);
 

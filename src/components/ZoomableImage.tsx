@@ -52,7 +52,10 @@ export function ZoomableImage({
 			<dialog
 				ref={dialogRef}
 				aria-label={alt}
-				className="fixed inset-0 flex h-full max-h-none w-full max-w-none items-center justify-center border-0 bg-transparent p-0 backdrop:bg-black/90"
+				// "hidden open:flex", never a bare "flex": an author-stylesheet
+				// display utility beats the UA rule dialog:not([open]){display:none},
+				// so a plain "flex" leaves every dialog permanently on screen.
+				className="fixed inset-0 hidden h-full max-h-none w-full max-w-none items-center justify-center border-0 bg-transparent p-0 backdrop:bg-black/90 open:flex"
 				// Closes on the empty area around the image only. Clicks on the image
 				// itself must not close, or ending a pan while zoomed would dismiss it.
 				onClick={(event) => {
