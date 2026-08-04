@@ -6,6 +6,7 @@ import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Separator } from "#/components/ui/separator";
 import { Skeleton } from "#/components/ui/skeleton";
+import { ZoomableImage } from "#/components/ZoomableImage";
 import { useOnlineStatus } from "#/hooks/use-online-status";
 import { usePiece } from "#/hooks/use-pieces";
 import { getSignedImageUrl } from "#/lib/image-utils";
@@ -137,11 +138,10 @@ function ExtraImagesGallery({
 			{images.map((img) => (
 				<div key={img.image_path}>
 					{urls[img.image_path] ? (
-						<img
+						<ZoomableImage
 							src={urls[img.image_path]}
 							alt={img.caption ?? "Ekstra bilde"}
 							className="aspect-square w-full rounded-lg object-cover"
-							loading="lazy"
 						/>
 					) : (
 						<div className="aspect-square rounded-lg bg-[var(--sand)]" />

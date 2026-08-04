@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Separator } from "#/components/ui/separator";
+import { ZoomableImage } from "#/components/ZoomableImage";
 import { getFieldLabel } from "#/lib/field-labels";
 import { getSignedImageUrl } from "#/lib/image-utils";
 import type { PieceStage } from "#/types/database";
@@ -28,11 +29,10 @@ export function StageSection({ stage }: { stage: PieceStage }) {
 				{stage.image_path && (
 					<div className="w-full flex-shrink-0 sm:w-48">
 						{imageUrl ? (
-							<img
+							<ZoomableImage
 								src={imageUrl}
 								alt={stage.title}
 								className="w-full rounded-lg object-cover"
-								loading="lazy"
 							/>
 						) : (
 							<div className="aspect-square rounded-lg bg-[var(--sand)]" />

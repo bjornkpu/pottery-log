@@ -1,0 +1,82 @@
+import { X } from "lucide-react";
+import { useRef } from "react";
+import { cn } from "#/lib/utils";
+
+/**
+ * A thumbnail that opens fullscreen when tapped.
+ *
+ * Both images render a plain <img> with no overlay, no touch handlers, and no
+ * touch-action or callout CSS, so iOS keeps offering its native long-press
+ * "Legg til i Bilder" menu and its native pinch-zoom. See
+ * docs/superpowers/specs/2026-08-04-image-lightbox-design.md before changing
+ * the markup here.
+ */
+export function ZoomableImage({
+	src,
+	alt,
+	className,
+}: {
+	src: string;
+	alt: string;
+	className?: string;
+}) {
+	const dialogRef = useRef<HTMLDialogElement>(null);
+
+	return (
+		<>
+			{/* biome-ignore lint/a11y/useSemanticElements: the role is required to
+			    make the image keyboard-reachable; wrapping it in a <button> is
+			    avoided because it risks suppressing the iOS long-press save menu,
+			    which is half of what this component exists for */}
+			<img
+				src={src}
+				alt={alt}
+				aria-label={`Vis ${alt} i full størrelse`}
+				className={cn(className, "cursor-pointer")}
+				loading="lazy"
+				// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: same reason as the useSemanticElements suppression above
+				role="button"
+				tabIndex={0}
+				onClick={() => dialogRef.current?.showModal()}
+				onKeyDown={(event) => {
+					if (event.key === "Enter" || event.key === " ") {
+						event.preventDefault();
+						dialogRef.current?.showModal();
+					}
+				}}
+			/>
+
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop click-to-close is
+			    a mouse/touch-only affordance; keyboard users already have the native
+			    Escape-to-close on <dialog> and the "Lukk" button below */}
+			<dialog
+				ref={dialogRef}
+				aria-label={alt}
+				// "hidden open:flex", never a bare "flex": an author-stylesheet
+				// display utility beats the UA rule dialog:not([open]){display:none},
+				// so a plain "flex" leaves every dialog permanently on screen.
+				className="fixed inset-0 hidden h-full max-h-none w-full max-w-none items-center justify-center border-0 bg-transparent p-0 backdrop:bg-black/90 open:flex"
+				// Closes on the empty area around the image only. Clicks on the image
+				// itself must not close, or ending a pan while zoomed would dismiss it.
+				onClick={(event) => {
+					if (event.target === event.currentTarget) dialogRef.current?.close();
+				}}
+			>
+				<img
+					src={src}
+					alt={alt}
+					className="max-h-full max-w-full"
+					loading="lazy"
+				/>
+				<button
+					type="button"
+					aria-label="Lukk"
+					onClick={() => dialogRef.current?.close()}
+					className="absolute right-4 top-[calc(env(safe-area-inset-top)+1rem)] rounded-full bg-black/50 p-2 text-white"
+				>
+					<X className="h-6 w-6" />
+				</button>
+			</dialog>
+		</>
+	);
+}
