@@ -18,6 +18,7 @@ import { Textarea } from "#/components/ui/textarea";
 import { useAuth } from "#/hooks/use-auth";
 import { useClayTypes } from "#/hooks/use-clay-types";
 import { useStageDefaults } from "#/hooks/use-stage-defaults";
+import { resolveDisplayImage } from "#/lib/display-image";
 import { getSignedImageUrl, uploadImage } from "#/lib/image-utils";
 import type { PieceWithRelations } from "#/types/database";
 
@@ -199,11 +200,13 @@ export function PieceForm({
 					}),
 			);
 
-			const lastStageWithImage = [...processedStages]
-				.reverse()
-				.find((s) => s.image_path);
-			const displayImage =
-				lastStageWithImage?.image_path ?? initialData?.display_image ?? null;
+			const displayImage = resolveDisplayImage(
+				initialData?.display_image ?? null,
+				processedStages
+					.map((s) => s.image_path)
+					.filter((path): path is string => !!path),
+				processedImages.map((img) => img.image_path).filter(Boolean),
+			);
 
 			await onSubmit({
 				title,
