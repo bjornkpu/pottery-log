@@ -1,11 +1,15 @@
 #!/bin/sh
-set -e
+set -eu
+
+# Fail fast so a misconfigured deployment is visible in Docker
+: "${SUPABASE_URL:?required}"
+: "${SUPABASE_ANON_KEY:?required}"
 
 # Generate runtime config from environment variables
 cat > /srv/config.js <<EOF
 window.__CONFIG__ = {
-  SUPABASE_URL: "${SUPABASE_URL:-}",
-  SUPABASE_ANON_KEY: "${SUPABASE_ANON_KEY:-}"
+  SUPABASE_URL: "${SUPABASE_URL}",
+  SUPABASE_ANON_KEY: "${SUPABASE_ANON_KEY}"
 };
 EOF
 

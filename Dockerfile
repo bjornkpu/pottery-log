@@ -4,7 +4,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-ARG GIT_SHA
+ARG GIT_SHA=unknown
 ENV GIT_SHA=$GIT_SHA
 RUN npm run build
 
@@ -12,8 +12,7 @@ RUN npm run build
 FROM caddy:2-alpine
 COPY --from=build /app/dist /srv
 COPY Caddyfile /etc/caddy/Caddyfile
-COPY docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY --chmod=0755 docker/entrypoint.sh /entrypoint.sh
 
 EXPOSE 3000
 
