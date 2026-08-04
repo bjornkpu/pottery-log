@@ -8,7 +8,7 @@ import { Separator } from "#/components/ui/separator";
 import { Skeleton } from "#/components/ui/skeleton";
 import { ZoomableImage } from "#/components/ZoomableImage";
 import { useOnlineStatus } from "#/hooks/use-online-status";
-import { usePiece } from "#/hooks/use-pieces";
+import { usePiece, useSetDisplayImage } from "#/hooks/use-pieces";
 import { getSignedImageUrl } from "#/lib/image-utils";
 
 export const Route = createFileRoute("/pieces/$id/")({
@@ -19,6 +19,7 @@ function PieceDetailPage() {
 	const { id } = Route.useParams();
 	const { data: piece, isLoading } = usePiece(id);
 	const isOnline = useOnlineStatus();
+	const setDisplayImage = useSetDisplayImage();
 
 	if (isLoading) {
 		return (
@@ -88,7 +89,19 @@ function PieceDetailPage() {
 
 			{/* Stages */}
 			{piece.stages.map((stage) => (
-				<StageSection key={stage.id} stage={stage} />
+				<StageSection
+					key={stage.id}
+					stage={stage}
+					isCover={
+						!!stage.image_path && piece.display_image === stage.image_path
+					}
+					canSetCover={isOnline}
+					onSetCover={() => {
+						if (stage.image_path) {
+							setDisplayImage.mutate({ id, imagePath: stage.image_path });
+						}
+					}}
+				/>
 			))}
 
 			{/* Slutttanker */}
