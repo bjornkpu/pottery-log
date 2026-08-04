@@ -11,6 +11,12 @@ import {
 	useCreateClayType,
 	useDeleteClayType,
 } from "#/hooks/use-clay-types";
+import {
+	useCreateFolder,
+	useDeleteFolder,
+	useFolders,
+	useRenameFolder,
+} from "#/hooks/use-folders";
 import { useIssueReporter } from "#/hooks/use-issue-reporter";
 import { useOnlineStatus } from "#/hooks/use-online-status";
 import {
@@ -97,6 +103,8 @@ function SettingsPage() {
 
 				<ClayTypesSection disabled={!isOnline} />
 				<Separator />
+				<FoldersSection disabled={!isOnline} />
+				<Separator />
 				<TagsSection disabled={!isOnline} />
 				<Separator />
 				<StageDefaultsSection disabled={!isOnline} />
@@ -158,6 +166,97 @@ function ClayTypesSection({ disabled }: { disabled: boolean }) {
 					size="sm"
 					disabled={disabled}
 				>
+					<Plus className="mr-1 h-4 w-4" /> Legg til
+				</Button>
+			</div>
+		</section>
+	);
+}
+
+function FoldersSection({ disabled }: { disabled: boolean }) {
+	const { data: folders } = useFolders();
+	const createFolder = useCreateFolder();
+	const renameFolder = useRenameFolder();
+	const deleteFolder = useDeleteFolder();
+	const [newName, setNewName] = useState("");
+	const [editingId, setEditingId] = useState<string | null>(null);
+	const [editingName, setEditingName] = useState("");
+
+	function handleCreate() {
+		if (!newName.trim()) return;
+		createFolder.mutate({
+			name: newName.trim(),
+			sort_order: (folders?.length ?? 0) + 1,
+		});
+		setNewName("");
+	}
+
+	function commitRename() {
+		if (editingId && editingName.trim()) {
+			renameFolder.mutate({ id: editingId, name: editingName.trim() });
+		}
+		setEditingId(null);
+	}
+
+	return (
+		<section>
+			<h2 className="mb-3 text-lg font-semibold text-[var(--sea-ink)]">
+				Mapper
+			</h2>
+			<div className="space-y-2">
+				{folders?.map((folder) => (
+					<div
+						key={folder.id}
+						className="flex items-center justify-between rounded-lg border border-[var(--line)] px-3 py-2"
+					>
+						{editingId === folder.id ? (
+							<Input
+								value={editingName}
+								onChange={(e) => setEditingName(e.target.value)}
+								onBlur={commitRename}
+								onKeyDown={(e) => {
+									if (e.key === "Enter") commitRename();
+									if (e.key === "Escape") setEditingId(null);
+								}}
+								className="h-8 flex-1 text-sm"
+								autoFocus
+							/>
+						) : (
+							<button
+								type="button"
+								className="flex-1 text-left text-sm"
+								onClick={() => {
+									if (disabled) return;
+									setEditingId(folder.id);
+									setEditingName(folder.name);
+								}}
+							>
+								{folder.name}
+							</button>
+						)}
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={() => deleteFolder.mutate(folder.id)}
+							disabled={disabled}
+						>
+							<Trash2 className="h-4 w-4" />
+						</Button>
+					</div>
+				))}
+			</div>
+			<div className="mt-3 flex gap-2">
+				<Input
+					value={newName}
+					onChange={(e) => setNewName(e.target.value)}
+					placeholder="Ny mappe..."
+					className="flex-1"
+					disabled={disabled}
+					onKeyDown={(e) => {
+						if (e.key === "Enter" && !disabled) handleCreate();
+					}}
+				/>
+				<Button onClick={handleCreate} size="sm" disabled={disabled}>
 					<Plus className="mr-1 h-4 w-4" /> Legg til
 				</Button>
 			</div>
