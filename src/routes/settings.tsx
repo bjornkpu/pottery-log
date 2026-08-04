@@ -181,7 +181,7 @@ function FoldersSection({ disabled }: { disabled: boolean }) {
 	const [newName, setNewName] = useState("");
 	const [editingId, setEditingId] = useState<string | null>(null);
 	const [editingName, setEditingName] = useState("");
-	const cancelledRef = useRef(false);
+	const renameDoneRef = useRef(false);
 
 	function handleCreate() {
 		if (!newName.trim()) return;
@@ -193,10 +193,8 @@ function FoldersSection({ disabled }: { disabled: boolean }) {
 	}
 
 	function commitRename() {
-		if (cancelledRef.current) {
-			cancelledRef.current = false;
-			return;
-		}
+		if (renameDoneRef.current) return;
+		renameDoneRef.current = true;
 		if (!disabled && editingId && editingName.trim()) {
 			renameFolder.mutate({ id: editingId, name: editingName.trim() });
 		}
@@ -222,7 +220,7 @@ function FoldersSection({ disabled }: { disabled: boolean }) {
 								onKeyDown={(e) => {
 									if (e.key === "Enter") commitRename();
 									if (e.key === "Escape") {
-										cancelledRef.current = true;
+										renameDoneRef.current = true;
 										setEditingId(null);
 									}
 								}}
@@ -235,7 +233,7 @@ function FoldersSection({ disabled }: { disabled: boolean }) {
 								className="flex-1 text-left text-sm"
 								onClick={() => {
 									if (disabled) return;
-									cancelledRef.current = false;
+									renameDoneRef.current = false;
 									setEditingId(folder.id);
 									setEditingName(folder.name);
 								}}
