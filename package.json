@@ -10,9 +10,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "format": "biome format",
-    "lint": "biome lint",
-    "check": "biome check"
+    "format": "biome format --write",
+    "lint": "biome lint --write",
+    "check": "biome check --write --error-on-warnings",
+    "check:ci": "biome ci --error-on-warnings"
   },
   "dependencies": {
     "@faker-js/faker": "^10.3.0",
