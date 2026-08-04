@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
 	afterEach,
 	beforeAll,
@@ -35,7 +35,7 @@ describe("ZoomableImage", () => {
 	it("opens the dialog when the thumbnail is activated", () => {
 		render(<ZoomableImage src={SRC} alt="Bolle" />);
 
-		screen.getByRole("button", { name: "Bolle" }).click();
+		screen.getByRole("button", { name: "Vis Bolle i full størrelse" }).click();
 
 		expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalledTimes(1);
 	});
@@ -56,5 +56,30 @@ describe("ZoomableImage", () => {
 
 		expect(thumbnail.className).toContain("aspect-square");
 		expect(full.className).not.toContain("aspect-square");
+	});
+
+	it("closes the dialog when the dialog element itself is clicked", () => {
+		render(<ZoomableImage src={SRC} alt="Bolle" />);
+
+		fireEvent.click(screen.getByRole("dialog", { hidden: true }));
+
+		expect(HTMLDialogElement.prototype.close).toHaveBeenCalledTimes(1);
+	});
+
+	it("does not close the dialog when the fullscreen image is clicked", () => {
+		render(<ZoomableImage src={SRC} alt="Bolle" />);
+
+		const [, full] = screen.getAllByAltText("Bolle");
+		fireEvent.click(full);
+
+		expect(HTMLDialogElement.prototype.close).not.toHaveBeenCalled();
+	});
+
+	it("closes the dialog when the Lukk button is clicked", () => {
+		render(<ZoomableImage src={SRC} alt="Bolle" />);
+
+		fireEvent.click(screen.getByRole("button", { name: "Lukk", hidden: true }));
+
+		expect(HTMLDialogElement.prototype.close).toHaveBeenCalledTimes(1);
 	});
 });

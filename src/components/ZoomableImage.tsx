@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { useRef } from "react";
+import { cn } from "#/lib/utils";
 
 /**
  * A thumbnail that opens fullscreen when tapped.
@@ -23,14 +24,15 @@ export function ZoomableImage({
 
 	return (
 		<>
-			{/* biome-ignore lint/a11y/useSemanticElements: wrapping the image in a
-			    <button> risks suppressing the iOS long-press save menu, which is half
-			    of what this component exists for; the role keeps the native <img>
-			    behaviour intact */}
+			{/* biome-ignore lint/a11y/useSemanticElements: the role is required to
+			    make the image keyboard-reachable; wrapping it in a <button> is
+			    avoided because it risks suppressing the iOS long-press save menu,
+			    which is half of what this component exists for */}
 			<img
 				src={src}
 				alt={alt}
-				className={className}
+				aria-label={`Vis ${alt} i full størrelse`}
+				className={cn(className, "cursor-pointer")}
 				loading="lazy"
 				// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: same reason as the useSemanticElements suppression above
 				role="button"
@@ -57,12 +59,17 @@ export function ZoomableImage({
 					if (event.target === event.currentTarget) dialogRef.current?.close();
 				}}
 			>
-				<img src={src} alt={alt} className="max-h-full max-w-full" />
+				<img
+					src={src}
+					alt={alt}
+					className="max-h-full max-w-full"
+					loading="lazy"
+				/>
 				<button
 					type="button"
 					aria-label="Lukk"
 					onClick={() => dialogRef.current?.close()}
-					className="absolute right-4 top-4 rounded-full bg-black/50 p-2 text-white"
+					className="absolute right-4 top-[calc(env(safe-area-inset-top)+1rem)] rounded-full bg-black/50 p-2 text-white"
 				>
 					<X className="h-6 w-6" />
 				</button>
