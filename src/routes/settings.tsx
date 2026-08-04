@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Bug, LogOut, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ThemeToggle from "#/components/ThemeToggle";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
@@ -181,6 +181,7 @@ function FoldersSection({ disabled }: { disabled: boolean }) {
 	const [newName, setNewName] = useState("");
 	const [editingId, setEditingId] = useState<string | null>(null);
 	const [editingName, setEditingName] = useState("");
+	const cancelledRef = useRef(false);
 
 	function handleCreate() {
 		if (!newName.trim()) return;
@@ -192,14 +193,14 @@ function FoldersSection({ disabled }: { disabled: boolean }) {
 	}
 
 	function commitRename() {
-		// Read editingId via the updater so a same-tick Escape (which already
-		// cleared it) wins over a stale onBlur closure fired by the unmount.
-		setEditingId((currentId) => {
-			if (!disabled && currentId && editingName.trim()) {
-				renameFolder.mutate({ id: currentId, name: editingName.trim() });
-			}
-			return null;
-		});
+		if (cancelledRef.current) {
+			cancelledRef.current = false;
+			return;
+		}
+		if (!disabled && editingId && editingName.trim()) {
+			renameFolder.mutate({ id: editingId, name: editingName.trim() });
+		}
+		setEditingId(null);
 	}
 
 	return (
@@ -220,7 +221,10 @@ function FoldersSection({ disabled }: { disabled: boolean }) {
 								onBlur={commitRename}
 								onKeyDown={(e) => {
 									if (e.key === "Enter") commitRename();
-									if (e.key === "Escape") setEditingId(null);
+									if (e.key === "Escape") {
+										cancelledRef.current = true;
+										setEditingId(null);
+									}
 								}}
 								className="h-8 flex-1 text-sm"
 								autoFocus
@@ -231,6 +235,7 @@ function FoldersSection({ disabled }: { disabled: boolean }) {
 								className="flex-1 text-left text-sm"
 								onClick={() => {
 									if (disabled) return;
+									cancelledRef.current = false;
 									setEditingId(folder.id);
 									setEditingName(folder.name);
 								}}
