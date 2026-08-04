@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as FoldersFolderIdRouteImport } from './routes/folders.$folderId'
+import { Route as PiecesIndexRouteImport } from './routes/pieces.index'
 import { Route as PiecesNewRouteImport } from './routes/pieces.new'
 import { Route as PiecesIdIndexRouteImport } from './routes/pieces.$id.index'
 import { Route as PiecesIdEditRouteImport } from './routes/pieces.$id.edit'
@@ -29,6 +31,16 @@ const LoginRoute = LoginRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FoldersFolderIdRoute = FoldersFolderIdRouteImport.update({
+  id: '/folders/$folderId',
+  path: '/folders/$folderId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PiecesIndexRoute = PiecesIndexRouteImport.update({
+  id: '/pieces/',
+  path: '/pieces/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PiecesNewRoute = PiecesNewRouteImport.update({
@@ -51,7 +63,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/folders/$folderId': typeof FoldersFolderIdRoute
   '/pieces/new': typeof PiecesNewRoute
+  '/pieces/': typeof PiecesIndexRoute
   '/pieces/$id/edit': typeof PiecesIdEditRoute
   '/pieces/$id/': typeof PiecesIdIndexRoute
 }
@@ -59,7 +73,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/folders/$folderId': typeof FoldersFolderIdRoute
   '/pieces/new': typeof PiecesNewRoute
+  '/pieces': typeof PiecesIndexRoute
   '/pieces/$id/edit': typeof PiecesIdEditRoute
   '/pieces/$id': typeof PiecesIdIndexRoute
 }
@@ -68,7 +84,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/folders/$folderId': typeof FoldersFolderIdRoute
   '/pieces/new': typeof PiecesNewRoute
+  '/pieces/': typeof PiecesIndexRoute
   '/pieces/$id/edit': typeof PiecesIdEditRoute
   '/pieces/$id/': typeof PiecesIdIndexRoute
 }
@@ -78,7 +96,9 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/settings'
+    | '/folders/$folderId'
     | '/pieces/new'
+    | '/pieces/'
     | '/pieces/$id/edit'
     | '/pieces/$id/'
   fileRoutesByTo: FileRoutesByTo
@@ -86,7 +106,9 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/settings'
+    | '/folders/$folderId'
     | '/pieces/new'
+    | '/pieces'
     | '/pieces/$id/edit'
     | '/pieces/$id'
   id:
@@ -94,7 +116,9 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/settings'
+    | '/folders/$folderId'
     | '/pieces/new'
+    | '/pieces/'
     | '/pieces/$id/edit'
     | '/pieces/$id/'
   fileRoutesById: FileRoutesById
@@ -103,7 +127,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   SettingsRoute: typeof SettingsRoute
+  FoldersFolderIdRoute: typeof FoldersFolderIdRoute
   PiecesNewRoute: typeof PiecesNewRoute
+  PiecesIndexRoute: typeof PiecesIndexRoute
   PiecesIdEditRoute: typeof PiecesIdEditRoute
   PiecesIdIndexRoute: typeof PiecesIdIndexRoute
 }
@@ -129,6 +155,20 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/folders/$folderId': {
+      id: '/folders/$folderId'
+      path: '/folders/$folderId'
+      fullPath: '/folders/$folderId'
+      preLoaderRoute: typeof FoldersFolderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pieces/': {
+      id: '/pieces/'
+      path: '/pieces'
+      fullPath: '/pieces/'
+      preLoaderRoute: typeof PiecesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pieces/new': {
@@ -159,7 +199,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   SettingsRoute: SettingsRoute,
+  FoldersFolderIdRoute: FoldersFolderIdRoute,
   PiecesNewRoute: PiecesNewRoute,
+  PiecesIndexRoute: PiecesIndexRoute,
   PiecesIdEditRoute: PiecesIdEditRoute,
   PiecesIdIndexRoute: PiecesIdIndexRoute,
 }
