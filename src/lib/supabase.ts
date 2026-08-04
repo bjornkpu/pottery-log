@@ -12,7 +12,8 @@ declare global {
 const supabaseUrl =
 	window.__CONFIG__?.SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey =
-	window.__CONFIG__?.SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY;
+	window.__CONFIG__?.SUPABASE_ANON_KEY ||
+	import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
 	throw new Error(

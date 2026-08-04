@@ -34,11 +34,9 @@ export function usePwaUpdate() {
 
 	// Capture registration for resume checks
 	useEffect(() => {
-		navigator.serviceWorker
-			?.getRegistration()
-			.then((reg) => {
-				registrationRef.current = reg ?? null;
-			});
+		navigator.serviceWorker?.getRegistration().then((reg) => {
+			registrationRef.current = reg ?? null;
+		});
 	}, []);
 
 	// Check for updates when app resumes from background
