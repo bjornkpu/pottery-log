@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { filterByRelation } from "#/lib/piece-filters";
 import { db } from "#/lib/supabase";
 import type {
 	Piece,
@@ -34,11 +35,10 @@ export function usePieces(filters?: {
 			if (filters?.tagIds?.length && data) {
 				const { data: pieceTags } = await db
 					.from("piece_tags")
-					.select("piece_id, tag_id")
+					.select("piece_id")
 					.in("tag_id", filters.tagIds);
 
-				const pieceIdsWithTags = new Set(pieceTags?.map((pt) => pt.piece_id));
-				return data.filter((p) => pieceIdsWithTags.has(p.id)) as Piece[];
+				return filterByRelation(data as Piece[], pieceTags ?? []);
 			}
 
 			return data as Piece[];
