@@ -84,7 +84,6 @@ export function StageEditor({
 						<Textarea
 							value={stage.notes}
 							onChange={(e) => onChange({ ...stage, notes: e.target.value })}
-							rows={3}
 							className="text-sm"
 							placeholder="Skriv notater..."
 						/>

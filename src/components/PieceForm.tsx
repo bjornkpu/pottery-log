@@ -388,7 +388,6 @@ export function PieceForm({
 				<Textarea
 					value={finalNotes}
 					onChange={(e) => setFinalNotes(e.target.value)}
-					rows={4}
 					placeholder="Refleksjoner, forbedringer til neste gang..."
 				/>
 			</div>
