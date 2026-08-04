@@ -1,12 +1,14 @@
-import { Input } from "#/components/ui/input";
-import { Textarea } from "#/components/ui/textarea";
-import { Label } from "#/components/ui/label";
-import { Button } from "#/components/ui/button";
+import { GripVertical, Trash2 } from "lucide-react";
 import { ImageUpload } from "#/components/ImageUpload";
+import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
+import { Label } from "#/components/ui/label";
+import { Textarea } from "#/components/ui/textarea";
 import { getFieldLabel, getFieldType } from "#/lib/field-labels";
-import { Trash2, GripVertical } from "lucide-react";
 
 export type StageFormData = {
+	/** Stable client-side identity, so React keys survive reordering and removal */
+	id: string;
 	stage_def_id: string | null;
 	title: string;
 	image: File | string | null;
@@ -48,7 +50,6 @@ export function StageEditor({
 			<div className="flex flex-col gap-4 sm:flex-row">
 				<div className="w-full sm:w-40">
 					<ImageUpload
-						value={stage.image}
 						onChange={(file) => onChange({ ...stage, image: file })}
 						previewUrl={previewUrl}
 					/>

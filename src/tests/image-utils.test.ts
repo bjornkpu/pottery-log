@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 vi.mock("browser-image-compression", () => ({
 	default: vi.fn((_file, options) => {
@@ -19,11 +19,9 @@ vi.mock("#/lib/supabase", () => ({
 				getPublicUrl: () => ({
 					data: { publicUrl: "https://example.com/test.jpg" },
 				}),
-				createSignedUrl: vi
-					.fn()
-					.mockResolvedValue({
-						data: { signedUrl: "https://example.com/signed.jpg" },
-					}),
+				createSignedUrl: vi.fn().mockResolvedValue({
+					data: { signedUrl: "https://example.com/signed.jpg" },
+				}),
 			}),
 		},
 	},

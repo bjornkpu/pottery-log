@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef } from "react";
 import { useRegisterSW } from "virtual:pwa-register/react";
+import { useCallback, useEffect, useRef } from "react";
 
 const UPDATE_CHECK_INTERVAL_MS = 60 * 60 * 1000; // 60 minutes
 

@@ -12,8 +12,8 @@ import Header from "../components/Header";
 import { IssueReporterDialog } from "../components/IssueReporterDialog";
 import { OfflineBanner } from "../components/OfflineBanner";
 import { useAuth } from "../hooks/use-auth";
-import { usePwaUpdate } from "../hooks/use-pwa-update";
 import { IssueReporterProvider } from "../hooks/use-issue-reporter";
+import { usePwaUpdate } from "../hooks/use-pwa-update";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
 interface MyRouterContext {

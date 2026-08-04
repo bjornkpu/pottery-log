@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { getSignedImageUrl } from "#/lib/image-utils";
-import { getFieldLabel, getFieldType } from "#/lib/field-labels";
 import { Separator } from "#/components/ui/separator";
+import { getFieldLabel } from "#/lib/field-labels";
+import { getSignedImageUrl } from "#/lib/image-utils";
 import type { PieceStage } from "#/types/database";
 
 export function StageSection({ stage }: { stage: PieceStage }) {

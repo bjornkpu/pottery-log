@@ -1,9 +1,9 @@
+import { Plus, X } from "lucide-react";
+import { useState } from "react";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
-import { useTags, useTagCategories, useCreateTag } from "#/hooks/use-tags";
-import { useState } from "react";
-import { X, Plus } from "lucide-react";
+import { useCreateTag, useTagCategories, useTags } from "#/hooks/use-tags";
 
 type TagSelectProps = {
 	selectedIds: string[];

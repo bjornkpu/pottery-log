@@ -1,10 +1,11 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { db } from "#/lib/supabase";
 import type {
 	Piece,
-	PieceWithRelations,
-	PieceStage,
 	PieceImage,
+	PieceStage,
+	PieceWithRelations,
+	Tag,
 } from "#/types/database";
 
 export function usePieces(filters?: {
@@ -77,7 +78,11 @@ export function usePiece(id: string) {
 				...pieceRes.data,
 				stages: (stagesRes.data ?? []) as PieceStage[],
 				images: (imagesRes.data ?? []) as PieceImage[],
-				tags: (tagsRes.data ?? []).map((pt: any) => pt.tags),
+				// The client is untyped, so Supabase infers the embedded tag as an
+				// array; the tag_id FK makes it a single row at runtime
+				tags: ((tagsRes.data ?? []) as unknown as { tags: Tag }[]).map(
+					(pt) => pt.tags,
+				),
 			};
 		},
 		enabled: !!id,

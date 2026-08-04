@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
 import { PieceForm } from "#/components/PieceForm";
 import { useCreatePiece } from "#/hooks/use-pieces";
-import { ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/pieces/new")({
 	component: NewPiecePage,

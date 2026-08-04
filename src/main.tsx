@@ -6,7 +6,10 @@ import "./styles.css";
 
 const router = getRouter();
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+const rootElement = document.getElementById("root");
+if (!rootElement) throw new Error("Missing #root element in index.html");
+
+ReactDOM.createRoot(rootElement).render(
 	<QueryClientProvider client={router.options.context.queryClient}>
 		<RouterProvider router={router} />
 	</QueryClientProvider>,

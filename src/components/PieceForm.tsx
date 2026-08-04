@@ -75,6 +75,7 @@ export function PieceForm({
 
 	const [stages, setStages] = useState<StageFormData[]>(
 		initialData?.stages.map((s) => ({
+			id: s.id,
 			stage_def_id: s.stage_def_id,
 			title: s.title,
 			image: s.image_path,
@@ -85,9 +86,10 @@ export function PieceForm({
 	);
 
 	const [extraImages, setExtraImages] = useState<
-		{ file: File | string; caption: string }[]
+		{ id: string; file: File | string | null; caption: string }[]
 	>(
 		initialData?.images.map((img) => ({
+			id: img.id,
 			file: img.image_path,
 			caption: img.caption ?? "",
 		})) ?? [],
@@ -126,6 +128,7 @@ export function PieceForm({
 		setStages([
 			...stages,
 			{
+				id: crypto.randomUUID(),
 				stage_def_id: defId,
 				title: def.name,
 				image: null,
@@ -140,6 +143,7 @@ export function PieceForm({
 		setStages([
 			...stages,
 			{
+				id: crypto.randomUUID(),
 				stage_def_id: null,
 				title: "",
 				image: null,
@@ -152,6 +156,7 @@ export function PieceForm({
 
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
+		if (!user) return;
 		setSubmitting(true);
 
 		try {
@@ -161,7 +166,7 @@ export function PieceForm({
 				stages.map(async (stage, i) => {
 					let imagePath = typeof stage.image === "string" ? stage.image : null;
 					if (stage.image instanceof File) {
-						const path = `${user!.id}/${pieceId}/stages/${crypto.randomUUID()}.jpg`;
+						const path = `${user.id}/${pieceId}/stages/${crypto.randomUUID()}.jpg`;
 						const result = await uploadImage(stage.image, path);
 						if (!result.error) imagePath = result.path;
 					}
@@ -182,7 +187,7 @@ export function PieceForm({
 					.map(async (img, i) => {
 						let imagePath = typeof img.file === "string" ? img.file : "";
 						if (img.file instanceof File) {
-							const path = `${user!.id}/${pieceId}/extra/${crypto.randomUUID()}.jpg`;
+							const path = `${user.id}/${pieceId}/extra/${crypto.randomUUID()}.jpg`;
 							const result = await uploadImage(img.file, path);
 							if (!result.error) imagePath = result.path;
 						}
@@ -285,7 +290,7 @@ export function PieceForm({
 				<div className="space-y-4">
 					{stages.map((stage, i) => (
 						<StageEditor
-							key={i}
+							key={stage.id}
 							stage={stage}
 							onChange={(updated) => {
 								const next = [...stages];
@@ -332,9 +337,8 @@ export function PieceForm({
 				</h2>
 				<div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
 					{extraImages.map((img, i) => (
-						<div key={i} className="relative">
+						<div key={img.id} className="relative">
 							<ImageUpload
-								value={img.file}
 								onChange={(file) => {
 									if (!file) {
 										setExtraImages(extraImages.filter((_, j) => j !== i));
@@ -367,7 +371,7 @@ export function PieceForm({
 						onClick={() =>
 							setExtraImages([
 								...extraImages,
-								{ file: null as any, caption: "" },
+								{ id: crypto.randomUUID(), file: null, caption: "" },
 							])
 						}
 						className="flex aspect-square items-center justify-center rounded-lg border-2 border-dashed border-[var(--line)] text-[var(--sea-ink-soft)]"

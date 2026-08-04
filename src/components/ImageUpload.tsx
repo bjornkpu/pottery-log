@@ -1,13 +1,12 @@
-import { useRef, useState } from "react";
 import { ImagePlus, X } from "lucide-react";
+import { useRef, useState } from "react";
 
 type ImageUploadProps = {
-	value: File | string | null;
 	onChange: (file: File | null) => void;
 	previewUrl?: string | null;
 };
 
-export function ImageUpload({ value, onChange, previewUrl }: ImageUploadProps) {
+export function ImageUpload({ onChange, previewUrl }: ImageUploadProps) {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [localPreview, setLocalPreview] = useState<string | null>(null);
 
