@@ -192,10 +192,14 @@ function FoldersSection({ disabled }: { disabled: boolean }) {
 	}
 
 	function commitRename() {
-		if (editingId && editingName.trim()) {
-			renameFolder.mutate({ id: editingId, name: editingName.trim() });
-		}
-		setEditingId(null);
+		// Read editingId via the updater so a same-tick Escape (which already
+		// cleared it) wins over a stale onBlur closure fired by the unmount.
+		setEditingId((currentId) => {
+			if (!disabled && currentId && editingName.trim()) {
+				renameFolder.mutate({ id: currentId, name: editingName.trim() });
+			}
+			return null;
+		});
 	}
 
 	return (
